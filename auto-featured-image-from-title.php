@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Auto Featured Image from Title
-Version: 1.0
+Version: 1.1
 Description: Automatically generates an image from the post title and sets it as the featured image
 Author: Chris Huff
 Author URI: http://designsbychris.com
