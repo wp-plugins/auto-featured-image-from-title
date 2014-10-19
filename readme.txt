@@ -10,11 +10,15 @@ Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Automatically generates an image from the post title of a new post and sets it as the featured image.
+Automatically generates an image from the post title of a new or updated post and sets it as the featured image.
 
 == Description ==
 
-This plugin automatically generates an image from the post title of a new post and sets it as the featured image. The image will then be included in your theme wherever the featured image for the post is called for.
+This plugin automatically generates an image from the post title of a new or updated post and sets it as the featured image. The image will then be included in your theme wherever the featured image for the post is called for.
+
+It's good to have an image in every post that you create. It helps for things like like search engine optimization, social sharing, and just the attractiveness of your blog. But sometimes it can take longer to find a good image for a particular blog post than to write the post itself.
+
+This plugin simplifies the process of publishing blog content. It will create a customized image for each post you write. You can select a background image to match the look and feel of your blog, and the plugin will automatically write the title of a new or updated post on top of this this background image to create a unique image for each post.
 
 == Installation ==
 
@@ -28,11 +32,11 @@ This plugin automatically generates an image from the post title of a new post a
 
 That's up to your Wordpress theme. Some themes do this by default, some don't. If yours doesn't, edit your Wordpress theme and insert the following code where you'd like the featured image to appear.
 
-`<?php
+<?php
 if ( has_post_thumbnail() ) { // check if the post has a Post Thumbnail assigned to it.
   the_post_thumbnail();
 }
-?>`
+?>
 
 = How can I customize the font, colors, and image to match my site? =
 
@@ -41,14 +45,6 @@ You can customize the generated image somewhat via the options page which can be
 = When does the plugin create an image for my new blog post? =
 
 When you click "Save Draft" or "Update" or "Publish."
-
-= What do I do if I change the title of the post and want the featured image to have the next text? =
-
-Click "Remove featured image." Then when you click "Save Draft" or "Update" or "Publish" it will generate the new image.
-
-= What if I don't want to change the post title, but I want to generate a new image with a different background, colors, or font? =
-
-Go to your media library, and delete the generated image that you no longer want to use. Change the settings you would like to change on the Settings > Auto Featured Image page. Then click "Save Draft" or "Update" or "Publish" on the post, it will generate a new image based on your settings.
 
 == Screenshots ==
 
@@ -60,9 +56,12 @@ Go to your media library, and delete the generated image that you no longer want
 
 == Changelog ==
 
+= 1.1 =
+* Fixed color picker installation error
+
 = 1.0 =
 * Initial release
 
 == Upgrade Notice ==
 
-No need to upgrade; it's brand new!
+Upgrade if you received a fatal error having to do with the color picker when trying to install

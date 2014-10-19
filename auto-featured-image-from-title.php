@@ -253,8 +253,8 @@ function auto_featured_image_from_title ($post_id) {
 add_action( 'save_post', 'auto_featured_image_from_title' );
 
 // Use the color picker on the admin page
-add_action( 'admin_enqueue_scripts', 'mw_enqueue_color_picker' );
-function mw_enqueue_color_picker( $hook_suffix ) {
+add_action( 'admin_enqueue_scripts', 'afift_enqueue_color_picker' );
+function afift_enqueue_color_picker( $hook_suffix ) {
     // first check that $hook_suffix is appropriate for your admin page
     wp_enqueue_style( 'wp-color-picker' );
     wp_enqueue_script( 'auto_featured_image', plugins_url('colorpicker.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
