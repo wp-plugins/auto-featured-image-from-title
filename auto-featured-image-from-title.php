@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Auto Featured Image from Title
-Version: 1.1
+Version: 1.2
 Description: Automatically generates an image from the post title and sets it as the featured image
 Author: Chris Huff
 Author URI: http://designsbychris.com
@@ -27,6 +27,8 @@ function auto_featured_image_from_title ($post_id) {
 	return;
 
 	// Set options if they don't exist yet
+	add_option('auto_image_pages',"yes");
+	add_option('auto_image_posts',"yes");
 	add_option('auto_image_width',640);
 	add_option('auto_image_height',360);
 	add_option('auto_image_bg_image',"sunset.jpg");
@@ -38,6 +40,8 @@ function auto_featured_image_from_title ($post_id) {
 	add_option('auto_image_shadow_color',"#000000");
 
 	// Get options from database
+	$auto_image_pages = get_option('auto_image_pages');
+	$auto_image_posts = get_option('auto_image_posts');
 	$auto_image_width = get_option('auto_image_width');
 	$auto_image_height = get_option('auto_image_height');
 	$auto_image_bg_image = get_option('auto_image_bg_image');
@@ -47,6 +51,12 @@ function auto_featured_image_from_title ($post_id) {
 	$auto_image_text_color = get_option('auto_image_text_color');
 	$auto_image_shadow = get_option('auto_image_shadow');
 	$auto_image_shadow_color = get_option('auto_image_shadow_color');
+
+	// Only run on pages and posts if the option is set to yes
+	if (($post->post_type =='page') && ($auto_image_pages == 'no'))
+	return;
+	if (($post->post_type =='post') && ($auto_image_posts == 'no'))
+	return;
 
 	// Separate hexidecimal colors into red, green, blue strings
 	function afift_hex2rgbcolors($c){
@@ -284,6 +294,8 @@ function afift_settings_link($links, $file) {
 
 function register_auto_featured_image() {
 	//register our settings
+	register_setting( 'auto_featured_image_group', 'auto_image_pages' );
+	register_setting( 'auto_featured_image_group', 'auto_image_posts' );
 	register_setting( 'auto_featured_image_group', 'auto_image_width' );
 	register_setting( 'auto_featured_image_group', 'auto_image_height' );
 	register_setting( 'auto_featured_image_group', 'auto_image_bg_color' );
@@ -321,6 +333,16 @@ function afift_settings_page() { ?>
 <form method="post" action="options.php">
     <?php settings_fields( 'auto_featured_image_group' ); ?>
         <div id="afift_settings">
+        <p><label for="auto_image_pages">Auto Generate Images for Pages:</label>
+		<select name="auto_image_pages" id="auto_image_pages">
+			<option value='yes'<?php if((get_option('auto_image_pages'))=='yes'){ echo " selected";} ?>>Yes</option>
+			<option value='no'<?php if((get_option('auto_image_pages'))=='no'){ echo " selected";} ?>>No</option>
+		</select></p>
+        <p><label for="auto_image_posts">Auto Generate Images for Posts:</label>
+		<select name="auto_image_posts" id="auto_image_posts">
+			<option value='yes'<?php if((get_option('auto_image_posts'))=='yes'){ echo " selected";} ?>>Yes</option>
+			<option value='no'<?php if((get_option('auto_image_posts'))=='no'){ echo " selected";} ?>>No</option>
+		</select></p>
         <p><label for="auto_image_width">Width:</label>
 		<input name="auto_image_width" type="text" id="auto_image_width" value="<?php form_option('auto_image_width'); ?>" /></p>
         <p><label for="auto_image_height">Height:</label>

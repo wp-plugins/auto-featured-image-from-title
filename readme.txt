@@ -5,8 +5,8 @@ Author URI: http://designsbychris.com
 Plugin URI: http://designsbychris.com/auto-featured-image-from-title
 Tags: featured image, featured images, generate thumbnail, generate thumbnails, text picture, text pictures, automatic featured image, auto featured image, automatically generate featured image, automatically set featured image
 Requires at least: 3.5
-Tested up to: 4.0
-Stable tag: 1.1
+Tested up to: 4.1
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,11 +32,11 @@ This plugin simplifies the process of publishing blog content. It will create a 
 
 That's up to your Wordpress theme. Some themes do this by default, some don't. If yours doesn't, edit your Wordpress theme and insert the following code where you'd like the featured image to appear.
 
-<?php
+`<?php
 if ( has_post_thumbnail() ) { // check if the post has a Post Thumbnail assigned to it.
   the_post_thumbnail();
 }
-?>
+?>`
 
 = How can I customize the font, colors, and image to match my site? =
 
@@ -56,6 +56,9 @@ When you click "Save Draft" or "Update" or "Publish."
 
 == Changelog ==
 
+= 1.2 =
+* Added option to enable/disable for posts/pages
+
 = 1.1 =
 * Fixed color picker installation error
 
@@ -64,4 +67,4 @@ When you click "Save Draft" or "Update" or "Publish."
 
 == Upgrade Notice ==
 
-Upgrade if you received a fatal error having to do with the color picker when trying to install
+Upgrade if you want to disable auto image creation for pages or posts
