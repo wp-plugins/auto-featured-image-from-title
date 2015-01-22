@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Auto Featured Image from Title
-Version: 1.2
+Version: 1.3
 Description: Automatically generates an image from the post title and sets it as the featured image
 Author: Chris Huff
 Author URI: http://designsbychris.com
@@ -21,14 +21,10 @@ function auto_featured_image_from_title ($post_id) {
 	if ( wp_is_post_revision($post->ID) )
 	return;
 
-	// Make sure a title has been given to the post
-	$post_title = html_entity_decode(get_the_title($post->ID),ENT_QUOTES,'UTF-8');
-	if (( $post_title == '' ) || ( $post_title == 'Auto Draft' ))
-	return;
-
 	// Set options if they don't exist yet
 	add_option('auto_image_pages',"yes");
 	add_option('auto_image_posts',"yes");
+	add_option('auto_image_text',"title");
 	add_option('auto_image_width',640);
 	add_option('auto_image_height',360);
 	add_option('auto_image_bg_image',"sunset.jpg");
@@ -42,6 +38,7 @@ function auto_featured_image_from_title ($post_id) {
 	// Get options from database
 	$auto_image_pages = get_option('auto_image_pages');
 	$auto_image_posts = get_option('auto_image_posts');
+	$auto_image_text = get_option('auto_image_text');
 	$auto_image_width = get_option('auto_image_width');
 	$auto_image_height = get_option('auto_image_height');
 	$auto_image_bg_image = get_option('auto_image_bg_image');
@@ -56,6 +53,18 @@ function auto_featured_image_from_title ($post_id) {
 	if (($post->post_type =='page') && ($auto_image_pages == 'no'))
 	return;
 	if (($post->post_type =='post') && ($auto_image_posts == 'no'))
+	return;
+
+	// Make sure a title or excerpt has been given to the post
+	$auto_image_post_title = html_entity_decode(get_the_title($post->ID),ENT_QUOTES,'UTF-8');
+	$auto_image_post_excerpt = html_entity_decode(get_the_excerpt($post->ID),ENT_QUOTES,'UTF-8');
+	if($auto_image_text=='title'){
+		$auto_image_post_text = $auto_image_post_title;
+		}
+	else {
+		$auto_image_post_text = $auto_image_post_excerpt;
+		}
+	if (( $auto_image_post_text == '' ) || ( $auto_image_post_text == 'Auto Draft' ))
 	return;
 
 	// Separate hexidecimal colors into red, green, blue strings
@@ -83,7 +92,7 @@ function auto_featured_image_from_title ($post_id) {
 	$shadow = afift_hex2rgbcolors($auto_image_shadow_color);
 
 	// Set up some variables
-	$post_slug = str_replace(' ', '-', $post_title);
+	$post_slug = str_replace(' ', '-', $auto_image_post_text);
 	$post_slug = preg_replace('/[^A-Za-z0-9\-]/', '', $post_slug);
 	$pluginsdir = str_replace($_SERVER["SERVER_NAME"],'',plugins_url());
 	$pluginsdir = str_replace('http://','',$pluginsdir);
@@ -130,7 +139,7 @@ function auto_featured_image_from_title ($post_id) {
 	$text_color = imagecolorallocate( $new_featured_img, $text["red"], $text["green"], $text["blue"]);
 	$shadow_color = imagecolorallocate( $new_featured_img, $shadow["red"], $shadow["green"], $shadow["blue"]);
 	$font = plugin_dir_path( __FILE__ ) . "fonts/" . $auto_image_fontface;
-	$words = explode(" ", $post_title);
+	$words = explode(" ", $auto_image_post_text);
 
 	while($topoftext > ($auto_image_height-$auto_image_shadow_y)){
 
@@ -183,7 +192,7 @@ function auto_featured_image_from_title ($post_id) {
 
 		// Center the text
 		$offset++;
-		$auto_image_text_array = imagettfbbox($auto_image_fontsize, 0, $font, $post_title);
+		$auto_image_text_array = imagettfbbox($auto_image_fontsize, 0, $font, $auto_image_post_text);
 		$auto_image_text_x = ceil(($auto_image_width - $auto_image_text_array[2]) / 2);
 		$auto_image_text_y = ceil(($auto_image_height/2)+($auto_image_fontsize/4)) - $offset;
 
@@ -247,7 +256,7 @@ function auto_featured_image_from_title ($post_id) {
 	$attachment = array(
 		'guid'           => $newimg_url, 
 		'post_mime_type' => 'image/png',
-		'post_title'     => $post_title,
+		'post_title'     => $auto_image_post_title,
 		'post_content'   => '',
 		'post_status'    => 'inherit'
 		);
@@ -296,6 +305,7 @@ function register_auto_featured_image() {
 	//register our settings
 	register_setting( 'auto_featured_image_group', 'auto_image_pages' );
 	register_setting( 'auto_featured_image_group', 'auto_image_posts' );
+	register_setting( 'auto_featured_image_group', 'auto_image_text' );
 	register_setting( 'auto_featured_image_group', 'auto_image_width' );
 	register_setting( 'auto_featured_image_group', 'auto_image_height' );
 	register_setting( 'auto_featured_image_group', 'auto_image_bg_color' );
@@ -342,6 +352,11 @@ function afift_settings_page() { ?>
 		<select name="auto_image_posts" id="auto_image_posts">
 			<option value='yes'<?php if((get_option('auto_image_posts'))=='yes'){ echo " selected";} ?>>Yes</option>
 			<option value='no'<?php if((get_option('auto_image_posts'))=='no'){ echo " selected";} ?>>No</option>
+		</select></p>
+        <p><label for="auto_image_text">Text to Use for Generated Images:</label>
+		<select name="auto_image_text" id="auto_image_text">
+			<option value='title'<?php if((get_option('auto_image_text'))=='title'){ echo " selected";} ?>>Post Title</option>
+			<option value='excerpt'<?php if((get_option('auto_image_text'))=='excerpt'){ echo " selected";} ?>>Post Excerpt</option>
 		</select></p>
         <p><label for="auto_image_width">Width:</label>
 		<input name="auto_image_width" type="text" id="auto_image_width" value="<?php form_option('auto_image_width'); ?>" /></p>
