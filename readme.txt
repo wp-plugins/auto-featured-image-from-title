@@ -6,7 +6,7 @@ Plugin URI: http://designsbychris.com/auto-featured-image-from-title
 Tags: featured image, featured images, generate thumbnail, generate thumbnails, text picture, text pictures, automatic featured image, auto featured image, automatically generate featured image, automatically set featured image
 Requires at least: 3.5
 Tested up to: 4.1
-Stable tag: 1.3
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,6 +15,8 @@ Automatically generates an image from the post title of a new or updated post an
 == Description ==
 
 This plugin automatically generates an image from the post title or post excerpt of a new or updated post or page and sets it as the featured image. The image will then be included in your theme wherever the featured image for the post or page is called for.
+
+<a href="http://designsbychris.com/auto-featured-image-from-title/">Upgrade to the PRO version</a>!
 
 It's good to have an image in every post and page that you create. It helps for things like like search engine optimization, social sharing, and just the attractiveness of your blog. But sometimes it can take longer to find a good image for a particular blog post than to write the post itself.
 
@@ -46,6 +48,14 @@ You can customize the generated image somewhat via the options page which can be
 
 When you click "Save Draft" or "Update" or "Publish."
 
+= Can I easily generate featured images for all of my previous posts? =
+
+This is a featured of the PRO version of the plugin, located at the bottom of the settings page. <a href="http://designsbychris.com/auto-featured-image-from-title/">Upgrade to the PRO version</a>!
+
+= Will this plugin overwrite all of the featured images that are already set? =
+
+No, it will only create featured images for posts that do not have featured images set.
+
 == Screenshots ==
 
 1. Admin Settings
@@ -55,6 +65,9 @@ When you click "Save Draft" or "Update" or "Publish."
 5. The image is automatically set as the featured image
 
 == Changelog ==
+
+= 1.4 =
+* Fixed a bug that produced errors regarding missing settings
 
 = 1.3 =
 * Added option to choose between using the Post Title or Post Excerpt on the generated image

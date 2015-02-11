@@ -1,13 +1,27 @@
 <?php
 /*
 Plugin Name: Auto Featured Image from Title
-Version: 1.3
+Version: 1.4
 Description: Automatically generates an image from the post title and sets it as the featured image
 Author: Chris Huff
 Author URI: http://designsbychris.com
 Plugin URI: http://designsbychris.com/auto-featured-image-from-title
 License: GPLv2 or later
 */
+
+// Set options if they don't exist yet
+add_option('auto_image_pages',"yes");
+add_option('auto_image_posts',"yes");
+add_option('auto_image_text',"title");
+add_option('auto_image_width',640);
+add_option('auto_image_height',360);
+add_option('auto_image_bg_image',"sunset.jpg");
+add_option('auto_image_bg_color',"#b5b5b5");
+add_option('auto_image_fontface',"chunkfive.ttf");
+add_option('auto_image_fontsize',72);
+add_option('auto_image_text_color',"#fff76d");
+add_option('auto_image_shadow',"yes");
+add_option('auto_image_shadow_color',"#000000");
 
 function auto_featured_image_from_title ($post_id) {
 
@@ -20,20 +34,6 @@ function auto_featured_image_from_title ($post_id) {
 	// If this is just a revision, don't update the featured image
 	if ( wp_is_post_revision($post->ID) )
 	return;
-
-	// Set options if they don't exist yet
-	add_option('auto_image_pages',"yes");
-	add_option('auto_image_posts',"yes");
-	add_option('auto_image_text',"title");
-	add_option('auto_image_width',640);
-	add_option('auto_image_height',360);
-	add_option('auto_image_bg_image',"sunset.jpg");
-	add_option('auto_image_bg_color',"#b5b5b5");
-	add_option('auto_image_fontface',"chunkfive.ttf");
-	add_option('auto_image_fontsize',"72");
-	add_option('auto_image_text_color',"#fff76d");
-	add_option('auto_image_shadow',"yes");
-	add_option('auto_image_shadow_color',"#000000");
 
 	// Get options from database
 	$auto_image_pages = get_option('auto_image_pages');
@@ -324,11 +324,13 @@ function afift_css_head() { ?>
 #afift_settings, #afift_info {background-color:#fff;border:#ccc 1px solid; padding:15px;}
 #afift_settings {float:left;width:100%;}
 #afift_info {float:right;margin-right:-280px;width:200px;}
+#afift_info ul {list-style-type:disc;margin-left:30px;}
 #afift_settings label {width:200px;display:table;}
 #afift_settings .bg_group {text-align:center;padding:10px;width:240px;float:left;}
 .showfonts {position:relative;color:#00f;}
 .showfonts span {display:none;}
 .showfonts:hover span {display:block;position:absolute;top:0px;left:60px;background-color:#fff;border:#aaa 1px solid;padding:5px;width:155px;}
+#afift input[type=submit] {display:block;clear:both;}
 
 </style>
 
@@ -399,13 +401,17 @@ function afift_settings_page() { ?>
 
 <div id="afift_info">
 
-	<strong>Support Development</strong><br /><br />
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="QHWFUH3H97TWJ">
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form>
+	<strong><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</strong><br />
+	<p>The PRO version of <strong>Auto Featured Image from Title</strong> also includes a feature to bulk generate featured images for all previous pages and posts.</p>
+	<p>Future features will include:</p>
+	<ul>
+		<li>The ability to upload your own fonts</li>
+		<li>The ability to upload your own background images</li>
+		<li>The option to blur the text shadow</li>
+		<li>The option to select a set of background images to be randomly used.</li>
+		<li>And much more!</li>
+	</ul>
+	<p><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</p>
 
 	<br /><br />
 
