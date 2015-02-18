@@ -42,7 +42,7 @@ if ( has_post_thumbnail() ) { // check if the post has a Post Thumbnail assigned
 
 = How can I customize the font, colors, and image to match my site? =
 
-You can customize the generated image somewhat via the options page which can be found in under Settings > Auto Featured Image.
+You can customize the generated image somewhat via the options page which can be found in under Settings > Auto Featured Image. The <a href="http://designsbychris.com/auto-featured-image-from-title/">PRO version</a> also allows you to upload and use your own fonts and background images.
 
 = When does the plugin create an image for my new blog post? =
 
