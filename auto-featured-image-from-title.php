@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Auto Featured Image from Title
-Version: 1.4
+Version: 1.5
 Description: Automatically generates an image from the post title and sets it as the featured image
 Author: Chris Huff
 Author URI: http://designsbychris.com
@@ -9,31 +9,39 @@ Plugin URI: http://designsbychris.com/auto-featured-image-from-title
 License: GPLv2 or later
 */
 
-// Set options if they don't exist yet
-add_option('auto_image_pages',"yes");
-add_option('auto_image_posts',"yes");
-add_option('auto_image_text',"title");
-add_option('auto_image_width',640);
-add_option('auto_image_height',360);
-add_option('auto_image_bg_image',"sunset.jpg");
-add_option('auto_image_bg_color',"#b5b5b5");
-add_option('auto_image_fontface',"chunkfive.ttf");
-add_option('auto_image_fontsize',72);
-add_option('auto_image_text_color',"#fff76d");
-add_option('auto_image_shadow',"yes");
-add_option('auto_image_shadow_color',"#000000");
+	// Set options if they don't exist yet
+	add_option('auto_image_pages',"yes");
+	add_option('auto_image_posts',"yes");
+	add_option('auto_image_text',"title");
+	add_option('auto_image_width',640);
+	add_option('auto_image_height',360);
+	add_option('auto_image_bg_image',"sunset.jpg");
+	add_option('auto_image_bg_color',"#b5b5b5");
+	add_option('auto_image_fontface',"chunkfive.ttf");
+	add_option('auto_image_fontsize',72);
+	add_option('auto_image_text_color',"#fff76d");
+	add_option('auto_image_shadow',"yes");
+	add_option('auto_image_shadow_color',"#000000");
 
 function auto_featured_image_from_title ($post_id) {
 
 	global $post;
 
+	// Don't run if the post doesn't even have an ID yet
+	if (!isset($post->ID) )
+	return;
+
 	// Check to see if the post already has a featured image
 	if ( '' != get_the_post_thumbnail($post->ID) )
 	return;
 
-	// If this is just a revision, don't update the featured image
+	// If this is just a revision, don't generate an image
 	if ( wp_is_post_revision($post->ID) )
 	return;
+
+	// Try to prevent the script from timing out or running out of memory
+	set_time_limit(0);
+	wp_cache_flush();
 
 	// Get options from database
 	$auto_image_pages = get_option('auto_image_pages');
@@ -57,42 +65,42 @@ function auto_featured_image_from_title ($post_id) {
 
 	// Make sure a title or excerpt has been given to the post
 	$auto_image_post_title = html_entity_decode(get_the_title($post->ID),ENT_QUOTES,'UTF-8');
-	$auto_image_post_excerpt = html_entity_decode(get_the_excerpt($post->ID),ENT_QUOTES,'UTF-8');
-	if($auto_image_text=='title'){
-		$auto_image_post_text = $auto_image_post_title;
+	$auto_image_post_excerpt = html_entity_decode(get_the_excerpt());
+	if($auto_image_text=='excerpt'){
+		$auto_image_post_text = $auto_image_post_excerpt;
 		}
 	else {
-		$auto_image_post_text = $auto_image_post_excerpt;
+		$auto_image_post_text = $auto_image_post_title;
 		}
 	if (( $auto_image_post_text == '' ) || ( $auto_image_post_text == 'Auto Draft' ))
 	return;
 
-	// Separate hexidecimal colors into red, green, blue strings
-	function afift_hex2rgbcolors($c){
-		$c = str_replace("#", "", $c);
-		if(strlen($c) == 3){
-			$r = hexdec( $c[0] . $c[1] );
-			$g = hexdec( $c[1] . $c[1] );
-			$b = hexdec( $c[2] . $c[1] );
+	// Separate hexidecimal colors into red, green, and blue strings
+	if(!function_exists('afift_hex2rgbcolors')){
+		function afift_hex2rgbcolors($c){
+			$c = str_replace("#", "", $c);
+			if(strlen($c) == 3){
+				$r = hexdec( $c[0] . $c[1] );
+				$g = hexdec( $c[1] . $c[1] );
+				$b = hexdec( $c[2] . $c[1] );
+				}
+			elseif (strlen($c) == 6 ){
+				$r = hexdec( $c[0] . $c[2] );
+				$g = hexdec( $c[2] . $c[2] );
+				$b = hexdec( $c[4] . $c[2] );
+				}
+			else {
+				echo '<span class="afift_alert">Error: <strong>Auto Featured Image from Title</strong> needs colors set in plugin settings.</span>';
+				}
+			return Array("red" => $r, "green" => $g, "blue" => $b);
 			}
-		else if (strlen($c) == 6 ){
-			$r = hexdec( $c[0] . $c[2] );
-			$g = hexdec( $c[2] . $c[2] );
-			$b = hexdec( $c[4] . $c[2] );
-			}
-		else {
-			$r = "ff";
-			$g = "ff";
-			$b = "ff";
-			}
-		return Array("red" => $r, "green" => $g, "blue" => $b);
 		}
 	$bg = afift_hex2rgbcolors($auto_image_bg_color);
 	$text = afift_hex2rgbcolors($auto_image_text_color);
 	$shadow = afift_hex2rgbcolors($auto_image_shadow_color);
 
 	// Set up some variables
-	$post_slug = str_replace(' ', '-', $auto_image_post_text);
+	$post_slug = str_replace(' ', '-', $auto_image_post_title);
 	$post_slug = preg_replace('/[^A-Za-z0-9\-]/', '', $post_slug);
 	$pluginsdir = str_replace($_SERVER["SERVER_NAME"],'',plugins_url());
 	$pluginsdir = str_replace('http://','',$pluginsdir);
@@ -145,7 +153,8 @@ function auto_featured_image_from_title ($post_id) {
 
 		if(($topoftext > ($auto_image_height-$auto_image_shadow_y)) && ($auto_image_bg_image!="blank.jpg")){
 //		if($topoftext > ($auto_image_height-$auto_image_shadow_y)){
-			if($new_featured_image){imagedestroy($new_featured_img);};
+//			if($new_featured_image){imagedestroy($new_featured_img);};
+			$new_featured_img = '';
 			$new_featured_img = imagecreatefromjpeg($backgroundimg);
 
 			$width = imagesx($new_featured_img);
@@ -183,12 +192,12 @@ function auto_featured_image_from_title ($post_id) {
 			imagefill($new_featured_img, 0, 0, $trans_layer_overlay);
 			}
 
+		$background_color = imagecolorallocate( $new_featured_img, $bg["red"], $bg["green"], $bg["blue"]);
+
 		if($auto_image_bg_image=="blank.jpg"){
 			$new_featured_img = imagecreatetruecolor($auto_image_width, $auto_image_height);
-			$background_color = imagecolorallocate( $new_featured_img, $bg["red"], $bg["green"], $bg["blue"]);
 			imagefill($new_featured_img, 0, 0, $background_color);
 			}
-
 
 		// Center the text
 		$offset++;
@@ -271,13 +280,13 @@ function auto_featured_image_from_title ($post_id) {
 
 add_action( 'save_post', 'auto_featured_image_from_title' );
 
-// Use the color picker on the admin page
+// Load the color picker on the admin page
 add_action( 'admin_enqueue_scripts', 'afift_enqueue_color_picker' );
 function afift_enqueue_color_picker( $hook_suffix ) {
-    // first check that $hook_suffix is appropriate for your admin page
-    wp_enqueue_style( 'wp-color-picker' );
-    wp_enqueue_script( 'auto_featured_image', plugins_url('colorpicker.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
-}
+	// first check that $hook_suffix is appropriate for your admin page
+	wp_enqueue_style( 'wp-color-picker' );
+	wp_enqueue_script( 'auto_featured_image', plugins_url('colorpicker.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
+	}
 
 add_action('admin_menu', 'afift_settings');
 
@@ -318,33 +327,34 @@ function register_auto_featured_image() {
 }
 
 function afift_css_head() { ?>
-<style type="text/css">
+		<style type="text/css">
+		#afift {margin-right:300px;}
+		#afift_settings, #afift_info {background-color:#fff;border:#ccc 1px solid; padding:15px;}
+		#afift_settings {float:left;width:100%;}
+		#afift_info {float:right;margin-right:-280px;width:200px;}
+		#afift_info ul {list-style-type:disc;margin-left:30px;}
+		#afift_settings label {display:table;}
+		#afift_settings .bg_group {text-align:center;padding:10px;width:240px;float:left;}
+		.showfonts {position:relative;color:#00f;}
+		.showfonts span {display:none;}
+		.showfonts span img {display:block;}
+		.showfonts:hover span {display:block;position:absolute;top:0px;left:60px;background-color:#fff;border:#aaa 1px solid;padding:5px;width:155px;}
+		#afift input[type=submit] {clear:both;display:block;margin-bottom:30px;}
+		</style>
+		<?php }
 
-#afift {margin-right:300px;}
-#afift_settings, #afift_info {background-color:#fff;border:#ccc 1px solid; padding:15px;}
-#afift_settings {float:left;width:100%;}
-#afift_info {float:right;margin-right:-280px;width:200px;}
-#afift_info ul {list-style-type:disc;margin-left:30px;}
-#afift_settings label {width:200px;display:table;}
-#afift_settings .bg_group {text-align:center;padding:10px;width:240px;float:left;}
-.showfonts {position:relative;color:#00f;}
-.showfonts span {display:none;}
-.showfonts:hover span {display:block;position:absolute;top:0px;left:60px;background-color:#fff;border:#aaa 1px solid;padding:5px;width:155px;}
-#afift input[type=submit] {display:block;clear:both;}
-
-</style>
-
-<?php }
 add_action('admin_head', 'afift_css_head');
 
 function afift_settings_page() { ?>
 
 <div id="afift">
-<h2>Auto Featured Image From Title</h2>
+
+<h2>Auto Featured Image From Title Settings</h2>
+
+<div id="afift_settings">
 
 <form method="post" action="options.php">
     <?php settings_fields( 'auto_featured_image_group' ); ?>
-        <div id="afift_settings">
         <p><label for="auto_image_pages">Auto Generate Images for Pages:</label>
 		<select name="auto_image_pages" id="auto_image_pages">
 			<option value='yes'<?php if((get_option('auto_image_pages'))=='yes'){ echo " selected";} ?>>Yes</option>
@@ -360,6 +370,8 @@ function afift_settings_page() { ?>
 			<option value='title'<?php if((get_option('auto_image_text'))=='title'){ echo " selected";} ?>>Post Title</option>
 			<option value='excerpt'<?php if((get_option('auto_image_text'))=='excerpt'){ echo " selected";} ?>>Post Excerpt</option>
 		</select></p>
+	<p><label for="auto_image_text_color">Text Color:</label>
+		<input name="auto_image_text_color" type="text" value="<?php form_option('auto_image_text_color'); ?>" class="my-color-field" /></p>
         <p><label for="auto_image_width">Width:</label>
 		<input name="auto_image_width" type="text" id="auto_image_width" value="<?php form_option('auto_image_width'); ?>" /></p>
         <p><label for="auto_image_height">Height:</label>
@@ -372,8 +384,6 @@ function afift_settings_page() { ?>
 		</select></p>
         <p><label for="auto_image_fontsize">Font Size (in pixels):</label>
 		<input name="auto_image_fontsize" type="text" id="auto_image_fontsize" value="<?php form_option('auto_image_fontsize'); ?>" /></p>
-	<p><label for="auto_image_text_color">Text Color:</label>
-		<input name="auto_image_text_color" type="text" value="<?php form_option('auto_image_text_color'); ?>" class="my-color-field" /></p>
         <p><label for="auto_image_shadow">Text Shadow:</label>
 		<select name="auto_image_shadow" id="auto_image_shadow">
 			<option value='yes'<?php if((get_option('auto_image_shadow'))=='yes'){ echo " selected";} ?>>Yes</option>
@@ -402,13 +412,18 @@ function afift_settings_page() { ?>
 <div id="afift_info">
 
 	<strong><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</strong><br />
-	<p>The PRO version of <strong>Auto Featured Image from Title</strong> also includes a feature to bulk generate featured images for all previous pages and posts.</p>
-	<p>Future features will include:</p>
+	<p>The PRO version of <strong>Auto Featured Image from Title</strong> also includes these additional features:</p>
 	<ul>
+		<li>Bulk generate featured images for all previous pages and posts.</li>
 		<li>The ability to upload your own fonts</li>
 		<li>The ability to upload your own background images</li>
+	</ul>
+	<p>Future features will include:</p>
+	<ul>
 		<li>The option to blur the text shadow</li>
-		<li>The option to select a set of background images to be randomly used.</li>
+		<li>The option to select a category of background images to be randomly used.</li>
+		<li>Customize placement of the text.</li>
+		<li>Live preview of the generated image.</li>
 		<li>And much more!</li>
 	</ul>
 	<p><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</p>
@@ -416,7 +431,7 @@ function afift_settings_page() { ?>
 	<br /><br />
 
 	<strong>Font Licenses:</strong><br />
-	<small><a href="http://www.fontsquirrel.com/license/ChunkFive">ChunkFive</a> | <a href="http://www.fontsquirrel.com/license/Windsong">Windsong</a> | <a href="http://www.fontsquirrel.com/license/Caviar-Dreams">Caviar Dreams</a></small>
+	<small><a href="http://www.fontsquirrel.com/license/ChunkFive">ChunkFive</a> | <a href="http://www.fontsquirrel.com/license/Windsong">Windsong</a> | <a href="http://www.fontsquirrel.com/license/Caviar-Dreams">CaviarDreams</a></small>
 
 </div>
 
