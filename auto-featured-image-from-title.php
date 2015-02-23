@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Auto Featured Image from Title
-Version: 1.5
+Version: 1.6
 Description: Automatically generates an image from the post title and sets it as the featured image
 Author: Chris Huff
 Author URI: http://designsbychris.com
@@ -266,13 +266,15 @@ function auto_featured_image_from_title ($post_id) {
 		'guid'           => $newimg_url, 
 		'post_mime_type' => 'image/png',
 		'post_title'     => $auto_image_post_title,
-		'post_content'   => '',
+		'post_excerpt'   => $auto_image_post_text,
+		'post_content'   => $auto_image_post_text,
 		'post_status'    => 'inherit'
 		);
 	$attach_id = wp_insert_attachment( $attachment, $newimg, $post->ID );
 	require_once( ABSPATH . 'wp-admin/includes/image.php' );
 	$attach_data = wp_generate_attachment_metadata( $attach_id, $newimg );
 	wp_update_attachment_metadata( $attach_id, $attach_data );
+	update_post_meta( $attach_id, '_wp_attachment_image_alt', wp_slash($auto_image_post_title) );
 
 	// Set the image as the featured image
 	set_post_thumbnail( $post_id, $attach_id );
@@ -411,25 +413,29 @@ function afift_settings_page() { ?>
 
 <div id="afift_info">
 
-	<strong><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</strong><br />
+	<strong><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</strong>
 	<p>The PRO version of <strong>Auto Featured Image from Title</strong> also includes these additional features:</p>
 	<ul>
-		<li>Bulk generate featured images for all previous pages and posts.</li>
+		<li>Bulk generate featured images for all previous pages and posts</li>
+		<li>Adjust the quality of the generated images</li>
 		<li>The ability to upload your own fonts</li>
 		<li>The ability to upload your own background images</li>
+		<li>The option to select a category of background images to be randomly used</li>
 	</ul>
 	<p>Future features will include:</p>
 	<ul>
 		<li>The option to blur the text shadow</li>
-		<li>The option to select a category of background images to be randomly used.</li>
-		<li>Customize placement of the text.</li>
-		<li>Live preview of the generated image.</li>
+		<li>Customize placement of the text</li>
+		<li>Live preview of the generated image</li>
 		<li>And much more!</li>
 	</ul>
 	<p><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</p>
 
-	<br /><br />
+	<hr />
+	<strong>Rate it!</strong>
+	<p>If you've found this plugin useful, please <a href="https://wordpress.org/support/view/plugin-reviews/auto-featured-image-from-title#postform">give it a rating and review</a>! This helps others know it's a good plugin, and makes me feel all warm and fuzzy, so that I will keep it updated and working great in the future.</p>
 
+	<hr />
 	<strong>Font Licenses:</strong><br />
 	<small><a href="http://www.fontsquirrel.com/license/ChunkFive">ChunkFive</a> | <a href="http://www.fontsquirrel.com/license/Windsong">Windsong</a> | <a href="http://www.fontsquirrel.com/license/Caviar-Dreams">CaviarDreams</a></small>
 
