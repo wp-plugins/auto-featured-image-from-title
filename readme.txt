@@ -5,8 +5,8 @@ Author URI: http://designsbychris.com
 Plugin URI: http://designsbychris.com/auto-featured-image-from-title
 Tags: featured image, featured images, generate thumbnail, generate thumbnails, text picture, text pictures, automatic featured image, auto featured image, automatically generate featured image, automatically set featured image
 Requires at least: 3.5
-Tested up to: 4.2
-Stable tag: 1.7
+Tested up to: 4.2.2
+Stable tag: 1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,13 +14,13 @@ Automatically generates an image from the post title of a new or updated post an
 
 == Description ==
 
-If you don't set a featured image manually, this plugin will automatically generate an image from the post title or post excerpt of a new or updated post or page and set it as the featured image. The image will then be included in your theme wherever the featured image for the post or page is called for.
+If you don't set a featured image manually, this plugin will automatically generate an image from the post title, excerpt, or content of a new or updated post or page and set it as the featured image. The image will then be included in your theme wherever the featured image for the post or page is called for.
 
 <a href="http://designsbychris.com/auto-featured-image-from-title/">Upgrade to the PRO version</a>!
 
 It's good to have an image in every post and page that you create. It helps for things like search engine optimization, social sharing, and just the attractiveness of your blog. But sometimes it can take longer to find a good image for a particular blog post than to write the post itself.
 
-This plugin simplifies the process of publishing content. It will automatically create a customized image for each post or page that you create. You can select a background image to match the look and feel of your blog, and the plugin will automatically write the title or excerpt of a new or updated post or page on top of this background image to create a unique image for each post.
+This plugin simplifies the process of publishing content. It will automatically create a customized image for each post or page that you create. You can select a background image to match the look and feel of your blog, and the plugin will automatically write the title, excerpt, or first 55 characters of the content of a new or updated post or page on top of this background image to create a unique image for each post.
 
 == Installation ==
 
@@ -66,6 +66,12 @@ No, it will only create featured images for posts that do not have featured imag
 
 == Changelog ==
 
+= 1.8 =
+* Added option to use the first 55 characters of the post's content as the text to write to the generated image
+* Changed the default font size to 30, making the plugin run faster, and eliminating timeout errors some users experienced
+* Fixed bug that caused the background color to always be black
+* Fixed bug which sometimes resulted in the generated image not being set as the post's featured image
+
 = 1.7 =
 * Generates an image when saving a post via 'quick edit'
 * Changed the way images are named to prevent overwriting files
@@ -95,4 +101,4 @@ No, it will only create featured images for posts that do not have featured imag
 
 == Upgrade Notice ==
 
-Upgrade if you want to use the option to use the Post Excerpt instead of the Post Title
+Bug fixes and a new option for the image's text

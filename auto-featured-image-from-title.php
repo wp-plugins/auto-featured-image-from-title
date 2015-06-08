@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Auto Featured Image from Title
-Version: 1.7
+Version: 1.8
 Description: Automatically generates an image from the post title and sets it as the featured image
 Author: Chris Huff
 Author URI: http://designsbychris.com
@@ -25,7 +25,7 @@ $afift_fonts_path = plugin_dir_path( __FILE__ ) . 'fonts/';
     add_option('auto_image_bg_image',"sunset.jpg");
     add_option('auto_image_bg_color',"#b5b5b5");
     add_option('auto_image_fontface',"chunkfive.ttf");
-    add_option('auto_image_fontsize',72);
+    add_option('auto_image_fontsize',30);
     add_option('auto_image_text_color',"#fff76d");
     add_option('auto_image_shadow',"yes");
     add_option('auto_image_shadow_color',"#000000");
@@ -74,10 +74,17 @@ function auto_featured_image_from_title ($post_id) {
     if (($post->post_type =='post') && ($auto_image_posts == 'no'))
     return;
 
-    // Make sure a title or excerpt has been given to the post
+    // Make sure the post text has been given to the post
     $auto_image_post_title = html_entity_decode(get_the_title($post->ID),ENT_QUOTES,'UTF-8');
-    $auto_image_post_excerpt = html_entity_decode(get_the_excerpt());
-    if($auto_image_text=='excerpt'){
+    $auto_image_post_content = substr(html_entity_decode(strip_tags($post->post_content)), 0, 55);
+    if(strlen($auto_image_post_content) == 55){
+        $auto_image_post_content .= '...';		
+        }		
+    if($auto_image_text=='content'){		
+        $auto_image_post_text = $auto_image_post_content;		
+        }		
+    elseif($auto_image_text=='excerpt'){		
+        $auto_image_post_excerpt = html_entity_decode(get_the_excerpt());
         $auto_image_post_text = $auto_image_post_excerpt;
         }
     else {
@@ -99,6 +106,11 @@ function auto_featured_image_from_title ($post_id) {
                 $r = hexdec( $c[0] . $c[2] );
                 $g = hexdec( $c[2] . $c[2] );
                 $b = hexdec( $c[4] . $c[2] );
+                }		
+            else{		
+                $r = 'ff';		
+                $g = 'ff';		
+                $b = '00';
                 }
             return Array("red" => $r, "green" => $g, "blue" => $b);
             }
@@ -112,8 +124,8 @@ function auto_featured_image_from_title ($post_id) {
 
     // Start generating the image
     if($auto_image_bg_image=='blank.jpg'){
-        $background_color = imagecolorallocate( $new_featured_img, $bg["red"], $bg["green"], $bg["blue"]);
         $new_featured_img = imagecreatetruecolor($auto_image_width, $auto_image_height);
+        $background_color = imagecolorallocate( $new_featured_img, $bg["red"], $bg["green"], $bg["blue"]);
         imagefill($new_featured_img, 0, 0, $background_color);
         }
     else {
@@ -126,12 +138,12 @@ function auto_featured_image_from_title ($post_id) {
         $auto_image_aspect = $auto_image_width / $auto_image_height;
 
         if ( $original_aspect >= $auto_image_aspect ){
-            // If image is wider than new generated image (in aspect ratio sense)
+            // If original image is wider than new generated image (in aspect ratio sense)
             $new_height = $auto_image_height;
             $new_width = $width / ($height / $auto_image_height);
             }
         else {
-            // If the new generated image is wider than the original image
+            // If new generated image is wider than the original image
             $new_width = $auto_image_width;
             $new_height = $height / ($width / $auto_image_width);
             }
@@ -264,7 +276,7 @@ function auto_featured_image_from_title ($post_id) {
     update_post_meta( $attach_id, '_wp_attachment_image_alt', wp_slash($auto_image_post_title) );
 
     // Set the image as the featured image
-    set_post_thumbnail( $post_id, $attach_id );
+    set_post_thumbnail( $post->ID, $attach_id );
     }
 
 add_action( 'wp_insert_post', 'auto_featured_image_from_title', 99999 );
@@ -364,15 +376,16 @@ function afift_settings_page() {
             <option value='no'<?php if((get_option('auto_image_posts'))=='no'){ echo " selected";} ?>>No</option>
         </select></p>
 
-        <p><label for="auto_image_width">Width:</label>
+        <p><label for="auto_image_width">Image Width:</label>
         <input name="auto_image_width" type="text" size="5" id="auto_image_width" value="<?php form_option('auto_image_width'); ?>" /></p>
-        <p><label for="auto_image_height">Height:</label>
+        <p><label for="auto_image_height">Image Height:</label>
         <input name="auto_image_height" type="text" size="5" id="auto_image_height" value="<?php form_option('auto_image_height'); ?>" /></p>
 
         <p><label for="auto_image_text">Text to Write onto Generated Images:</label>
         <select name="auto_image_text" id="auto_image_text">
             <option value='title'<?php if((get_option('auto_image_text'))=='title'){ echo " selected";} ?>>Post Title</option>
             <option value='excerpt'<?php if((get_option('auto_image_text'))=='excerpt'){ echo " selected";} ?>>Post Excerpt</option>
+            <option value='content'<?php if((get_option('auto_image_text'))=='content'){ echo " selected";} ?>>Post Content</option>
         </select></p>
     <p><label for="auto_image_text_color">Text Color:</label>
         <input name="auto_image_text_color" type="text" value="<?php form_option('auto_image_text_color'); ?>" class="my-color-field" /></p>
@@ -413,24 +426,8 @@ function afift_settings_page() {
 <div id="afift_info">
 
     <strong><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</strong>
-    <p>The PRO version of <strong>Auto Featured Image from Title</strong> also includes these additional features:</p>
-    <ul>
-        <li>Bulk generate featured images for all previous pages and posts</li>
-        <li>Adjust the quality of the generated images</li>
-        <li>The ability to upload your own fonts</li>
-        <li>The ability to upload your own background images</li>
-        <li>The option to select a category of background images to be randomly used</li>
-        <li>Use a random Flickr photo for your featured image</li>
-        <li>Turn off the text overlay</li>
-    </ul>
-    <p>Future features will include:</p>
-    <ul>
-        <li>The option to blur the text shadow</li>
-        <li>Customize placement of the text</li>
-        <li>Live preview of the generated image</li>
-        <li>And much more!</li>
-    </ul>
-    <p><a href="http://designsbychris.com/auto-featured-image-from-title/">Purchase the PRO version</a>!</p>
+    <p><strong>Use discount code LITE2PRO for 30% off!</strong></p>
+    <p>The PRO version allows you to customize the featured image even more! Upload your own fonts and background images, or use a random Flickr photo for your featured image. You can also customize the placement of the text, or turn off the text overlay completely, if you so desire. The PRO version includes many more features. <a href="http://designsbychris.com/auto-featured-image-from-title/">Check it out</a>!</p>
 
     <hr />
     <strong>Rate it!</strong>
@@ -443,5 +440,31 @@ function afift_settings_page() {
 </div>
 
 <?php }
+
+// Display a notice that can be dismissed
+function afift_lite_admin_notice() {
+    global $current_user;
+    $user_id = $current_user->ID;
+
+    // Check that the user hasn't already clicked to ignore the message
+    if ( ! get_user_meta($user_id, 'afift_lite2pro_ignore_notice') ) {
+        echo '<div class="updated"><p>';
+        printf(__('<strong>Thanks for using Auto Featured Image from Title LITE!</strong><br />Use discount code LITE2PRO to get 30&#37; off the <a href="http://designsbychris.com/auto-featured-image-from-title">PRO version</a>! | <a href="%1$s" rel="nofollow">Hide Notice</a>'), '?' . http_build_query(array_merge($params, array('afift_lite2pro_ignore_notice'=>'0'))));
+        echo "</p></div>";
+        }
+    }
+
+add_action('admin_notices', 'afift_lite_admin_notice');
+
+function afift_lite_notice_ignore() {
+    global $current_user;
+    $user_id = $current_user->ID;
+
+    // If user clicks to ignore the notice, add that to their user meta
+    if ( isset($_GET['afift_lite2pro_ignore_notice']) && '0' == $_GET['afift_lite2pro_ignore_notice'] ) {
+        add_user_meta($user_id, 'afift_lite2pro_ignore_notice', 'true', true);
+        }
+    }
+add_action('admin_init', 'afift_lite_notice_ignore');
 
 ?>
